@@ -64,5 +64,5 @@ when you want to rebuild your project
 * **YOU CAN REMOVE YOUR GITHUB REPOSITORY BUT MAKE SURE TO RECREATE IT WHEN REBUILDING YOUR PROJECT**
 
 ### EXAMPLE
-![alt text](https://github.com/Gotham13121997/codeforces-questions-fetcher/blob/master/pics/impo1.png)  
-![alt text](https://github.com/Gotham13121997/codeforces-questions-fetcher/blob/master/pics/impo2.jpg)  
+![alt text](https://github.com/Gotham13121997/FB-TO-TG-GROUP-CONNECT/blob/master/pics/impo1.png)  
+![alt text](https://github.com/Gotham13121997/FB-TO-TG-GROUP-CONNECT/blob/master/pics/impo2.jpg)  
