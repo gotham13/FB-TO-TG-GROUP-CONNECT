@@ -22,7 +22,7 @@ It will look somewhat like this
 {"update_id":8393,"message":{"message_id":3,"from":{"id":7474,"first_name":"AAA"},"chat":{"id":,"title":""},"date":25497,"new_chat_participant":{"id":71,"first_name":"NAME","username":"YOUR_BOT_NAME"}}}  
 the id of the chat object is your chat id  
 * Get your telegram group id by adding bot to the group and using the same method as above
-* Edit the config.ini file with your credentials.   You can also put your persistent storage point if you will be using OPENSHIFT ONLINE to host the bot (If name of your volume is df then put /df/ in the field) otherwise just leave the field blank 
+* Edit the config.ini file with your credentials.  
 
 ### RUNNING ON LOCAL PC
 * pip install requirements.txt in console
@@ -41,14 +41,6 @@ the id of the chat object is your chat id
 * enter the url of the github repository
 * wait for application to start
 * enjoy
-* You will have to use persistent storage to prevent data loss on deployments
-  * think of a name for mount point eg /df
-  * open the openshift console
-  * go to storage and create a persistent storage
-  * Go to deployments
-  * then in deployment configuration attach the persistent storage along with a mount point you thought of
-  * wait for the app to re-deploy
-  * enjoy
 
 #### REBUILDING PROJECT ON OPENSHIFT ONLINE  
 when you want to rebuild your project  
