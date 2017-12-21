@@ -1,4 +1,5 @@
 import facebook
+import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 import os
@@ -27,44 +28,22 @@ send_to=str(config.get('telegram','send_to')).split(',')
 
 graph = facebook.GraphAPI(access_token=Facebook_user_token, version="2.7")
 
-exists=False
 latest=None
-if  os.path.exists(mount_point+'latest.json'):
-    exists=True
-    with open(mount_point+'latest.json', 'r') as latest1:
-        latest = json.load(latest1)
-
-
 sched = BackgroundScheduler()
 @sched.scheduled_job('cron', second=20)
 def fetch():
-    global latest,exists
+    global latest
     bot = Bot(Telegram_bot_token)
     try:
         post = graph.get_object(id=Facebook_group_id, fields='feed')
         feeds = post['feed']['data']
         feed = feeds[0]
-        latest_time_data = feed['updated_time']
-        latest_time = {'latest': latest_time_data}
-        with open(mount_point + 'latest.json', 'w') as latest1:
-            json.dump(latest_time, latest1)
-        if exists is False:
-            if 'message' in feed and 'story' in feed:
-                message = feed['story'] + "\n" + feed['message'] + "\n\nCheck it out here\n" + Facebook_group_url
-                for chatids in send_to:
-                    bot.send_message(chat_id=chatids, text=message)
-            elif 'message' in feed:
-                message = "Someone posted in the group:\n" + feed[
-                    'message'] + "\n\nCheck it out here\n" + Facebook_group_url
-                for chatids in send_to:
-                    bot.send_message(chat_id=chatids, text=message)
-            elif 'story' in feed:
-                message = feed['story'] + "\n\nCheck it out here\n" + Facebook_group_url
-                for chatids in send_to:
-                    bot.send_message(chat_id=chatids, text=message)
+        latest_time_data = datetime.datetime.strptime(feed['updated_time'], '%Y-%m-%dT%H:%M:%S+%f')
+        if latest is None:
+            latest=latest_time_data
         else:
             for i in range(0, len(feeds)):
-                if feeds[i]['updated_time'] == latest['latest']:
+                if datetime.datetime.strptime(feeds[i]['updated_time'], '%Y-%m-%dT%H:%M:%S+%f') <= latest:
                     break
                 if 'message' in feeds[i] and 'story' in feeds[i]:
                     message = feeds[i]['story'] + "\n" + feeds[i][
@@ -80,10 +59,7 @@ def fetch():
                     message = feeds[i]['story'] + "\n\nCheck it out here\n" + Facebook_group_url
                     for chatids in send_to:
                         bot.send_message(chat_id=chatids, text=message)
-
-        with open(mount_point + 'latest.json', 'r') as latest1:
-            latest = json.load(latest1)
-        exists = True
+            latest = latest_time_data
     except facebook.GraphAPIError:
         for chatids in adminlist:
             bot.send_message(chat_id=chatids, text="Your facebook user access token might have expired")
