@@ -2,8 +2,6 @@ import facebook
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
-import os
-import json
 from queue import Queue
 from threading import Thread
 from telegram import Bot
@@ -22,7 +20,6 @@ Facebook_user_token=config.get('facebook','user_access_token')
 Telegram_bot_token=config.get('telegram','bot_token')
 Facebook_group_id=config.get('facebook','group_id')
 Facebook_group_url=config.get('facebook','group_url')
-mount_point=config.get('openshift','persistent_mount_point')
 adminlist=str(config.get('telegram','admin_chat_id')).split(',')
 send_to=str(config.get('telegram','send_to')).split(',')
 
@@ -30,9 +27,9 @@ graph = facebook.GraphAPI(access_token=Facebook_user_token, version="2.7")
 
 latest=None
 sched = BackgroundScheduler()
-@sched.scheduled_job('cron', second=20)
+@sched.scheduled_job('interval', minutes=3,seconds=40) #change interval according to need we are making 11 api calls per execution and total limit is 200 calls per minute per total no of avg users
 def fetch():
-    global latest
+    global latest,already_posted
     bot = Bot(Telegram_bot_token)
     try:
         post = graph.get_object(id=Facebook_group_id, fields='feed')
@@ -42,9 +39,13 @@ def fetch():
         if latest is None:
             latest=latest_time_data
         else:
-            for i in range(0, len(feeds)):
-                if datetime.datetime.strptime(feeds[i]['updated_time'], '%Y-%m-%dT%H:%M:%S+%f') <= latest:
-                    break
+            cmp=10
+            if len(feeds)<10:
+                cmp=len(feeds)
+            for i in range(0, cmp):
+                creation=graph.get_object(id=feeds[i]['id'])['created_time']
+                if datetime.datetime.strptime(creation, '%Y-%m-%dT%H:%M:%S+%f') <= latest:
+                    continue
                 if 'message' in feeds[i] and 'story' in feeds[i]:
                     message = feeds[i]['story'] + "\n" + feeds[i][
                         'message'] + "\n\nCheck it out here\n" + Facebook_group_url
