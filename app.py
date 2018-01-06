@@ -1,7 +1,9 @@
 import facebook
+import os
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+import shutil
 from queue import Queue
 from threading import Thread
 from telegram import Bot
@@ -17,6 +19,14 @@ TOKEN=range(1)
 
 config = ConfigParser()
 config.read('config.ini')
+mount_point=config.get('openshift','persistent_mount_point')
+
+# copying config.ini to persistent storage
+if not os.path.exists(mount_point+'config.ini'):
+    shutil.copy('config.ini',mount_point+'config.ini')
+
+config.read(mount_point+'config.ini')
+
 Facebook_user_token=config.get('facebook','user_access_token')
 Telegram_bot_token=config.get('telegram','bot_token')
 Facebook_group_id=config.get('facebook','group_id')
@@ -30,7 +40,7 @@ latest=None
 sched = BackgroundScheduler()
 
 '''
-Makin 11 api calls per execution in every 3:40 secs to prevent crossing api limit
+Making 11 api calls per execution in every 3:40 secs to prevent crossing api limit
 Reduce the value of cmp to decrease the the interval such that api limit of 200 calls is not met
 '''
 # Configured such that to be under api limit 200 calls in 60 minutes"
@@ -104,7 +114,7 @@ def token(bot,update):
     global Facebook_user_token,graph
     new_token=update.message.text
     config['facebook']['user_access_token']=new_token
-    with open('config.ini','w') as configfile:
+    with open(mount_point+'config.ini','w') as configfile:
         config.write(configfile)
     Facebook_user_token=new_token
     graph=facebook.GraphAPI(access_token=Facebook_user_token, version="2.7")
@@ -157,4 +167,3 @@ def setup(webhook_url=None):
 
 if __name__ == '__main__':
     setup()
-
