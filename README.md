@@ -22,7 +22,7 @@ It will look somewhat like this
 {"update_id":8393,"message":{"message_id":3,"from":{"id":7474,"first_name":"AAA"},"chat":{"id":,"title":""},"date":25497,"new_chat_participant":{"id":71,"first_name":"NAME","username":"YOUR_BOT_NAME"}}}  
 the id of the chat object is your chat id  
 * Get your telegram group id by adding bot to the group and using the same method as above
-* Edit the config.ini file with your credentials.  
+* Edit the config.ini file with your credentials. You can also put your persistent storage point if you will be using OPENSHIFT ONLINE to host the bot (If name of your volume is df then put /df/ in the field) otherwise just leave the field blank 
 
 ### RUNNING ON LOCAL PC
 * pip install requirements.txt in console
